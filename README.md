@@ -6,7 +6,7 @@ This an extension for the [MagicMirror](https://github.com/MichMich/MagicMirror)
 The requests to the server will be paused is the module is not displayed (use of a carousel or hidden by Remote-Control for example) or by the use of a PIR sensor and the module MMM-PIR-Sensor. An immediate update will occurs at the return of the module display.
 
 ## Installation
-1. Navigate into your MagicMirror's `modules` folder and execute `git clone https://github.com/cbrooker/MMM-Todoist.git`. A new folder will appear navigate into it.
+1. Navigate into your MagicMirror's `modules` folder and execute `git clone https://github.com/bwmaas/MMM-Todoist.git`. A new folder will appear navigate into it.
 2. Execute `npm install` to install the node dependencies.
 
 ## Using the module
@@ -228,7 +228,6 @@ The following properties can be configured:
 ## Dependencies
 - [request](https://www.npmjs.com/package/request) (installed via `npm install`)
 
-
 # Screen shots
 A few sample Screen Shots to show you what this module looks like. It's fairly configurable and changes considerably depending on how you use Todoist, how many projects you include, and how you sort.
 
@@ -258,28 +257,3 @@ Options enabled: orderBy:dueDateAsc, showProjects: true
 
 Options enabled: orderBy:dueDateAsc, showProjects: false
 ![My image](http://cbrooker.github.io/MMM-Todoist/Screenshots/7.png)
-
-
-## Attribution
-
-This project is based on work done by Paul-Vincent Roll in the MMM-Wunderlist module. (https://github.com/paviro/MMM-Wunderlist)
-
-
-The MIT License (MIT)
-=====================
-
-Copyright © 2016 Chris Brooker
-
-Permission is hereby granted, free of charge, to any person
-obtaining a copy of this software and associated documentation
-files (the “Software”), to deal in the Software without
-restriction, including without limitation the rights to use,
-copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the
-Software is furnished to do so, subject to the following
-conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-**The software is provided “as is”, without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose and noninfringement. In no event shall the authors or copyright holders be liable for any claim, damages or other liability, whether in an action of contract, tort or otherwise, arising from, out of or in connection with the software or the use or other dealings in the software.**
