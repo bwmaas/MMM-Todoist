@@ -1,10 +1,10 @@
 {
-  "name": "Magic-Mirror-Module-Todoist",
+  "name": "MMM-Todoist",
   "version": "1.0.0",
-  "description": "Todoist module for the Magic Mirror.",
+  "description": "Todoist module for MagicMirror².",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/cbrooker/MMM-Todoist"
+    "url": "git+https://github.com/bwmaas/MMM-Todoist"
   },
   "keywords": [
     "magic mirror",
@@ -12,13 +12,13 @@
     "wunderlist",
     "module"
   ],
-  "author": "Chris Brooker",
-  "contributors": "https://github.com/cbrooker/MMM-Todoist/graphs/contributors",
+  "author": "Ben Maas",
+  "contributors": "https://github.com/bwmaas/MMM-Todoist/graphs/contributors",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/cbrooker/MMM-Todoist/issues"
+    "url": "https://github.com/bwmaas/MMM-Todoist/issues"
   },
-  "homepage": "https://github.com/cbrooker/MMM-Todoist#readme",
+  "homepage": "https://github.com/bwmaas/MMM-Todoist",
   "dependencies": {
     "audit": "^0.0.6",
     "request": "latest",
