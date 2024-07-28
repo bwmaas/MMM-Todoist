@@ -58,7 +58,7 @@ Module.register("MMM-Todoist", {
 		// 	"#ffcc00", "#74e8d3", "#3bd5fb", "#dc4fad", "#ac193d", "#d24726", "#82ba00", "#03b3b2", "#008299",
 		// 	"#5db2ff", "#0072c6", "#000000", "#777777"
 		// ], //These colors come from Todoist and their order matters if you want the colors to match your Todoist project colors.
-		
+
 		//TODOIST Change how they are doing Project Colors, so now I'm changing it.
 		projectColors: {
 			30:'#b8256f',
@@ -101,6 +101,7 @@ Module.register("MMM-Todoist", {
 		return {
 			en: "translations/en.json",
 			de: "translations/de.json",
+			fr: "translations/fr.json",
 			nb: "translations/nb.json"
 		};
 	},
@@ -505,7 +506,7 @@ Module.register("MMM-Todoist", {
 			// this item is a subtask so indent it
 			taskText = '- ' + taskText;
 		}
-		return this.createCell("title bright alignLeft", 
+		return this.createCell("title bright alignLeft",
 			this.shorten(taskText, this.config.maxTitleLength, this.config.wrapEvents));
 
 		// return this.createCell("title bright alignLeft", item.content);
@@ -513,7 +514,7 @@ Module.register("MMM-Todoist", {
 	addDueDateCell: function(item) {
 		var className = "bright align-right dueDate ";
 		var innerHTML = "";
-		
+
 		var oneDay = 24 * 60 * 60 * 1000;
 		var dueDateTime = this.parseDueDate(item.due.date);
 		var dueDate = new Date(dueDateTime.getFullYear(), dueDateTime.getMonth(), dueDateTime.getDate());
@@ -583,7 +584,7 @@ Module.register("MMM-Todoist", {
 		var innerHTML = "<span class='projectcolor' style='color: " + projectcolor + "; background-color: " + projectcolor + "'></span>" + project.name;
 		return this.createCell("xsmall", innerHTML);
 	},
-	addAssigneeAvatorCell: function(item, collaboratorsMap) {	
+	addAssigneeAvatorCell: function(item, collaboratorsMap) {
 		var avatarImg = document.createElement("img");
 		avatarImg.className = "todoAvatarImg";
 
@@ -598,11 +599,11 @@ Module.register("MMM-Todoist", {
 		return cell;
 	},
 	getDom: function () {
-	
+
 		if (this.config.hideWhenEmpty && this.tasks.items.length===0) {
 			return null;
 		}
-	
+
 		//Add a new div to be able to display the update time alone after all the task
 		var wrapper = document.createElement("div");
 
@@ -620,7 +621,7 @@ Module.register("MMM-Todoist", {
 
 		var divBody = document.createElement("div");
 		divBody.className = "divTableBody";
-		
+
 		if (this.tasks === undefined) {
 			return wrapper;
 		}
@@ -637,7 +638,7 @@ Module.register("MMM-Todoist", {
 			var divRow = document.createElement("div");
 			//Add the Row
 			divRow.className = "divTableRow";
-			
+
 
 			//Columns
 			divRow.appendChild(this.addPriorityIndicatorCell(item));
@@ -654,7 +655,7 @@ Module.register("MMM-Todoist", {
 
 			divBody.appendChild(divRow);
 		});
-		
+
 		divTable.appendChild(divBody);
 		wrapper.appendChild(divTable);
 
