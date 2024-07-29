@@ -61,13 +61,13 @@ The following properties can be configured:
 # Screenshots
 A few sample Screen Shots to show you what this module looks like. It's fairly configurable and changes considerably depending on how you use Todoist, how many projects you include, and how you sort.
 
-| Options                                   | Screenshot                                                                                    |
-|-------------------------------------------|-----------------------------------------------------------------------------------------------|
-| `displayAvatar: true`                     | ![Screenshot](https://raw.githubusercontent.com/thyed/MMM-Todoist/master/todoist-avatars.png) |
-| `orderBy:todoist, showProjects: true`     | ![Screenshot](http://cbrooker.github.io/MMM-Todoist/Screenshots/1.png)                        |
-| `orderBy:dueDateAsc, showProjects: true`  | ![Screenshot](http://cbrooker.github.io/MMM-Todoist/Screenshots/2.png)                        |
-| `orderBy:dueDateAsc, showProjects: false` | ![Screenshot](http://cbrooker.github.io/MMM-Todoist/Screenshots/3.png)                        |
-| `orderBy:todoist, showProjects: false`    | ![Screenshot](http://cbrooker.github.io/MMM-Todoist/Screenshots/4.png)                        |
-| `orderBy:todoist, showProjects: true`     | ![Screenshot](http://cbrooker.github.io/MMM-Todoist/Screenshots/5.png)                        |
-| `orderBy:dueDateAsc, showProjects: true`  | ![Screenshot](http://cbrooker.github.io/MMM-Todoist/Screenshots/6.png)                        |
-| `orderBy:dueDateAsc, showProjects: false` | ![Screenshot](http://cbrooker.github.io/MMM-Todoist/Screenshots/7.png)                        |
+| Options                                   | Screenshot                                                             |
+|-------------------------------------------|------------------------------------------------------------------------|
+| `displayAvatar: true`                     | ![Screenshot](todoist-avatars.png)                                     |
+| `orderBy:todoist, showProjects: true`     | ![Screenshot](http://cbrooker.github.io/MMM-Todoist/Screenshots/1.png) |
+| `orderBy:dueDateAsc, showProjects: true`  | ![Screenshot](http://cbrooker.github.io/MMM-Todoist/Screenshots/2.png) |
+| `orderBy:dueDateAsc, showProjects: false` | ![Screenshot](http://cbrooker.github.io/MMM-Todoist/Screenshots/3.png) |
+| `orderBy:todoist, showProjects: false`    | ![Screenshot](http://cbrooker.github.io/MMM-Todoist/Screenshots/4.png) |
+| `orderBy:todoist, showProjects: true`     | ![Screenshot](http://cbrooker.github.io/MMM-Todoist/Screenshots/5.png) |
+| `orderBy:dueDateAsc, showProjects: true`  | ![Screenshot](http://cbrooker.github.io/MMM-Todoist/Screenshots/6.png) |
+| `orderBy:dueDateAsc, showProjects: false` | ![Screenshot](http://cbrooker.github.io/MMM-Todoist/Screenshots/7.png) |
