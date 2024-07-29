@@ -2,274 +2,72 @@
 # MMM-Todoist
 This is a fork of the original [MMM-Todoist](https://github.com/cbrooker/MMM-Todoist).
 
-This an extension for the [MagicMirror](https://github.com/MichMich/MagicMirror). It can display your Todoist todos. You can add multiple instances with different lists. Only one account supported.
-The requests to the server will be paused is the module is not displayed (use of a carousel or hidden by Remote-Control for example) or by the use of a PIR sensor and the module MMM-PIR-Sensor. An immediate update will occurs at the return of the module display.
-
-## Installation
-1. Navigate into your MagicMirror's `modules` folder and execute `git clone https://github.com/bwmaas/MMM-Todoist.git`. A new folder will appear navigate into it.
-2. Execute `npm install` to install the node dependencies.
+This an extension for [MagicMirror²](https://magicmirror.builders). It can display your Todoist todos. You can add
+multiple instances with different lists. Only one account supported. The requests to the server will be paused if
+the module is not displayed (use of a carousel or hidden by Remote-Control for example) or by the use of a PIR sensor
+and the module MMM-PIR-Sensor. An immediate update will occurs at the return of the module display.
 
 ## Using the module
+See the [installation instructions](INSTALLATION.md) for more details. Add the module to the `modules` array in the `config/config.js` file:
 
-To use this module, add it to the modules array in the `config/config.js` file:
-````javascript
+```javascript
 modules: [
-	{
-		module: 'MMM-Todoist',
-		position: 'top_right',	// This can be any of the regions. Best results in left or right regions.
-		header: 'Todoist', // This is optional
-		config: { // See 'Configuration options' for more information.
-			hideWhenEmpty: false,
-			accessToken: 'accessToken from Todoist',
-			maximumEntries: 60,
-			updateInterval: 10*60*1000, // Update every 10 minutes
-			fade: false,
-			// projects and/or labels is mandatory:
-			projects: [ 166564794 ],
-			labels: [ "MagicMirror", "Important" ] // Tasks for any projects with these labels will be shown.
-      }
-	}
+  // ...
+  {
+    module: 'MMM-Todoist',
+    position: 'top_right',	// This can be any of the regions. Best results in left or right regions.
+    header: 'Todoist', // This is optional
+    config: { // See 'Configuration options' for more information.
+      hideWhenEmpty: false,
+      maximumEntries: 60,
+      updateInterval: 10 * 60 * 1000, // Update every 10 minutes
+      fade: false,
+      // projects and/or labels is mandatory:
+      projects: [ 166564794 ],
+      labels: [ "MagicMirror", "Important" ] // Tasks for any projects with these labels will be shown.
+    }
+  }
 ]
-````
+```
 
 ## Configuration options
 
 The following properties can be configured:
 
+| Option                  | Type         | Default             | Description                                                                                                                                                                                                                                                  |
+|-------------------------|--------------|---------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| tokenFile               | string       | `token.txt`         | A file containing your Todoist [access token](INSTALLATION.md#access-token). The file is relative to the root of this directory.                                                                                                                             |
+| accessToken             | string       | none                | *DEPRECATED* The [access token](INSTALLATION.md#access-token) to use when connecting to the Todoist API. If left unset, the token will be loaded from a file specified by `tokenFile` property.                                                              |
+| blacklistProjects       | boolean      | false               | When enabled `projects` becomes a exclusion list.<br>NOTE: If used in combination with `labels`, tasks that are excluded via project may still be shown via the label!                                                                                       |
+| projects                | string[]     | []                  | The Todoist [projects](INSTALLATION.md#project-ids) to include tasks from. *This value and/or the labels entry must be specified.* If both projects and labels are specified, then tasks from both will be shown.                                            |
+| labels                  | string[]     | []                  | Any tasks with the specified labels will be included. *This value and/or the labels entry must be specified.* If both projects and labels are specified, then tasks from both will be shown.                                                                 |
+| maximumEntries          | integer      | 10                  | Maximum number of tasks to be displayed.                                                                                                                                                                                                                     |
+| updateInterval          | integer (ms) | 600000 (10 minutes) | How often to connect to the Todoist API to check for updates. Be careful, this is in ms, NOT seconds! So, too low a number will lock you out for repeated server attempts!                                                                                   |
+| fade                    | boolean      | true                | Fade (gradient) tasks to black.                                                                                                                                                                                                                              |
+| fadePoint               | float        | 0.25                | Where to start any fade. Represented as value between `0` (top) to `1` (bottom).                                                                                                                                                                             |
+| fadeMinimumOpacity      | float        | 0.25                | Opacity of the last item if fade is enabled.                                                                                                                                                                                                                 |
+| showProject             | boolean      | true                | If enabled, display the project to the right of the DueDates as it does on Todoist.                                                                                                                                                                          |
+| sortType                | string       | `todoist`           | The sorting method when displaying your tasks. Possible values: ["todoist", "priority", "dueDateAsc", "dueDateDesc", "ueDateDescPriority"]                                                                                                                   |
+| wrapEvents              | boolean      | false               | If enabled, display the long tasks on several lines, according on the value `maxTitleLength`.                                                                                                                                                                |
+| maxTitleLength          | integer      | 25                  | The number of lines to cut off at the display that are on several lines.                                                                                                                                                                                     |
+| displayLastUpdate       | boolean      | false               | If enabled, display the last update time at the end of the task list.                                                                                                                                                                                        |
+| displayLastUpdateFormat | string       | `dd - HH:mm:ss`     | Format to use for the time display if `displayLastUpdate` is enabled.                                                                                                                                                                                        |
+| displayTasksWithinDays  | integer      | -1                  | If non-negative, only display tasks with a due date within `displayTasksWithinDays` days. For instance, setting this to 0 will only show tasks due today or overdue. This will not affect tasks without a due date, `displayTasksWithoutDue` controls those. |
+| displayTasksWithoutDue  | boolean      | true                | If enabled, display tasks without a due date.                                                                                                                                                                                                                |
+| displaySubtasks         | boolean      | true                | If enabled, display subtasks.                                                                                                                                                                                                                                |
+| displayAvatar           | boolean      | false               | If enabled, avatar images of collaborators assigned to tasks in shared projects.                                                                                                                                                                             |
+| hideWhenEmpty           | boolean      | false               | If enabled, hide the widget when all lists are empty (including header).                                                                                                                                                                                     |
 
-<table width="100%">
-	<!-- why, markdown... -->
-	<thead>
-		<tr>
-			<th>Option</th>
-			<th width="100%">Description</th>
-		</tr>
-	<thead>
-	<tbody>
-		<tr>
-			<td><code>accessToken</code> (deprecated)</td>
-			<td>Your Todoist access token. Deprecated in favor of <code>tokenFile</code>.<br>
-				<br><b>Possible values:</b> <code>string</code>
-				<br><b>Default value:</b> <code>none</code>
-        <br>
-        <br>When left unset the module will attempt to load the value from a file defined by <code>tokenFile</code>.
-        <br>
-				<br><b>Note:</b> You can use one of three values here.
-				<ul>
-					<li>the access token created during the OAuth process associated with your app in the <a href="https://developer.todoist.com/appconsole.html">App Management consol</a></li>
-					<li>the "test token" generated in the <a href="https://developer.todoist.com/appconsole.html">App Management consol</a> without going through the steps of the oAuth token (For the web site value requested, you can use "http://example.com" if you don't have a website)</li>
-					<li>the "API token" found in your account's <a href="https://todoist.com/app/settings/integrations/developer">Integration > Developer settings</a></li>
-				</ul>
-			</td>
-		</tr>
-		<tr>
-			<td><code>tokenFile</code></td>
-			<td>A file containing your Todoist access token. The file is relative to the root of this directory.<br>
-				<br><b>Possible values:</b> <code>string</code>
-				<br><b>Default value:</b> <code>token.txt</code>
-				<br><b>Note:</b> The file may contain one of three values:
-				<ul>
-					<li>the access token created during the OAuth process associated with your app in the <a href="https://developer.todoist.com/appconsole.html">App Management consol</a></li>
-					<li>the "test token" generated in the <a href="https://developer.todoist.com/appconsole.html">App Management consol</a> without going through the steps of the oAuth token (For the web site value requested, you can use "http://example.com" if you don't have a website)</li>
-					<li>the "API token" found in your account's <a href="https://todoist.com/app/settings/integrations/developer">Integration > Developer settings</a></li>
-				</ul>
-			</td>
-		</tr>
-		<tr>
-			<td><code>blacklistProjects</code></td>
-			<td>
-				When this option is enabled, <code>projects</code> becomes a <i>blacklist.</i>
-				Any project that is <b>not</b> in <code>projects</code> will be used.<br>
-				<br><b>Possible values:</b> <code>boolean</code>
-				<br><b>Default value:</b> <code>false</code>
-				<br><b>Example:</b> <code>true</code>
-				<br>
-				<br>
-				NB: If used in combination with <code>labels</code>, tasks that are in a blacklisted
-				project but match a label will still be shown!
-			</td>
-		</tr>
-		<tr>
-			<td><code>projects</code></td>
-			<td>
-				Array of ProjectIDs you want to display. <br>
-				<br><b>Possible values:</b> <code>array</code>
-				<br><b>Default value:</b> <code>[ ]</code>
-				<br><b>Example:</b> <code>[166564794, 166564792]</code>
-				<br>
-				<br>
-				<b>Getting the Todoist ProjectID:</b><br>
-				1) Go to Todoist (Log in if you aren't)<br>
-				2) Click on a Project in the left menu<br>
-				3) Your browser URL will change to something like<br> <code>"https://todoist.com/app?lang=en&v=818#project%2F166564897"</code><br><br>
-				Everything after %2F is the Project ID. In this case "166564897"<br><br>
-				<hr />
-				Alternatively, if you add <b>debug=true</b> in your config.js the Projects and ProjectsIDs will be displayed on MagicMirror as well as in the Browser console.<br><br>
-				<b>This value and/or the labels entry must be specified</b>. If both projects and labels are specified, then tasks from both will be shown.
-			</td>
-		</tr>
-			<tr>
-			<td><code>labels</code></td>
-			<td>
-				Array of label names you want to display. <br>
-				<br><b>Possible values:</b> <code>array</code>
-				<br><b>Default value:</b> <code>[ ]</code>
-				<br><b>Example:</b> <code>["MagicMirror", "Important", "DoInTheMorning"]</code>
-				<br>
-				<br>
-				<b>This value and/or the projects entry must be specified</b>. If both projects and labels are specified, then tasks from both will be shown.
-			</td>
-		</tr>
-		<tr>
-			<td><code>maximumEntries</code></td>
-			<td>Maximum number of todos to be shown.<br>
-				<br><b>Possible values:</b> <code>int</code>
-				<br><b>Default value:</b> <code>10</code>
-			</td>
-		</tr>
-		<tr>
-			<td><code>updateInterval</code></td>
-			<td>How often the module should load new todos. Be careful, this is in ms, NOT seconds! So, too low a number will lock you out for repeated server attempts!<br>
-				<br><b>Possible values:</b> <code>int</code> in <code>milliseconds</code>
-				<br><b>Default value:</b> <code>10*60*1000</code>
-			</td>
-		</tr>
-		<tr>
-			<td><code>fade</code></td>
-			<td>Fade todos to black. (Gradient)<br>
-				<br><b>Possible values:</b> <code>true</code> or <code>false</code>
-				<br><b>Default value:</b> <code>true</code>
-			</td>
-		</tr>
-		<tr>
-			<td><code>fadePoint</code></td>
-			<td>Where to start fade?<br>
-				<br><b>Possible values:</b> <code>0</code> (top of the list) - <code>1</code> (bottom of list)
-				<br><b>Default value:</b> <code>0.25</code>
-			</td>
-		</tr>
-		<tr>
-			<td><code>fadeMinimumOpacity</code></td>
-			<td>Opacity of the last item if fade is enabled.<br>
-				<br><b>Possible values:</b> <code>0</code> (last item is completely transparent) - <code>1</code> (no fade)
-				<br><b>Default value:</b> <code>0.25</code>
-			</td>
-		</tr>
-		<tr>
-			<td><code>showProject</code></td>
-			<td>If true this will display the Project to the right of the DueDates as it does on Todost.<br>
-				<br><b>Possible values:</b> <code>boolean</code>
-				<br><b>Default value:</b> <code>true</code>
-			</td>
-		</tr>
-		<tr>
-			<td><code>sortType</code></td>
-			<td>This will determine the sorting method used when displaying your Todos.<br>
-				<br><b>Possible values:</b> <br />
-				<code>"todoist"</code> <span>- Sort based on the order in Todoist.</span> </br >
-				<code>"priority"</code> <span>- Sort based on the priority, in Descending order. (Highest priority first)</span> </br >
-				<code>"dueDateAsc"</code> <span>- Sort based on the Due Date of the Todo Ascending. (Oldest date first)</span> </br>
-				<code>"dueDateDesc"</code> <span>- Sort based on the Due Date of the Todo Descending. (Newest date first)</span></br>
-				<code>"dueDateDescPriority"</code> <span>- Sort based on the Due Date of the Todo Descending and by priority high to low.</span></br>
-				<br><b>Default value:</b> <code>"todoist"</code>
-			</td>
-		</tr>
-		<tr>
-			<td><code>displayLastUpdate</code></td>
-			<td>If true this will display the last update time at the end of the task list. See screenshot below<br>
-				<br><b>Possible values:</b> <code>boolean</code>
-				<br><b>Default value:</b> <code>false</code>
-			</td>
-		</tr>
-		<tr>
-			<td><code>displayLastUpdateFormat</code></td>
-			<td>Format to use for the time display if displayLastUpdate:true <br>
-				<br><b>Possible values:</b> See [Moment.js formats](http://momentjs.com/docs/#/parsing/string-format/)
-				<br><b>Default value:</b> <code>'dd - HH:mm:ss'</code>
-			</td>
-		</tr>
-		<tr>
-			<td><code>wrapEvents</code></td>
-			<td>If true this will display the long tasks on several lines, according on the value <code>maxTitleLength</code>. See screenshot below. <br>
-				<br><b>Possible values:</b> <code>boolean</code>
-				<br><b>Default value:</b> <code>false</code>
-			</td>
-		</tr>
-		<tr>
-			<td><code>maxTitleLength</code></td>
-			<td>Value cut the display of long tasks on several lines. See screenshot below<br>
-				<br><b>Possible values:</b> <code>10</code> - <code>50</code>
-				<br><b>Default value:</b> <code>25</code>
-			</td>
-		</tr>
-		<tr>
-			<td><code>displayTasksWithinDays</code></td>
-			<td>If non-negative, only display tasks with a due date within <code>displayTasksWithinDays</code> days. For instance, setting this to 0 will only show tasks due today or overdue. This will not affect tasks without a due date, <code>displayTasksWithoutDue</code> controls those.<br>
-				<br><b>Possible values:</b> <code>-1</code> - <code>∞</code>
-				<br><b>Default value:</b> <code>-1</code> (filtering disabled)
-			</td>
-		</tr>
-		<tr>
-			<td><code>displayTasksWithoutDue</code></td>
-			<td>Controls if tasks without a due date are displayed.<br>
-				<br><b>Possible values:</b> <code>boolean</code>
-				<br><b>Default value:</b> <code>true</code>
-			</td>
-		</tr>
-		<tr>
-			<td><code>displaySubtasks</code></td>
-			<td>Controls if subtasks are displayed or not.<br>
-				<br><b>Possible values:</b> <code>boolean</code>
-				<br><b>Default value:</b> <code>true</code>
-			</td>
-		</tr>
-		<tr>
-			<td><code>displayAvatar</code></td>
-			<td>Display avatar images of collaborators assigned to tasks in shared projects.<br>
-				<br><b>Possible values:</b> <code>boolean</code>
-				<br><b>Default value:</b> <code>false</code>
-			</td>
-		</tr>
-		<tr>
-			<td><code>hideWhenEmpty</code></td>
-			<td>Hide widget when all lists are empty (including header).<br>
-				<br><b>Possible values:</b> <code>boolean</code>
-				<br><b>Default value:</b> <code>false</code>
-			</td>
-		</tr>
-
-	</tbody>
-</table>
-
-## Dependencies
-- [request](https://www.npmjs.com/package/request) (installed via `npm install`)
-
-# Screen shots
+# Screenshots
 A few sample Screen Shots to show you what this module looks like. It's fairly configurable and changes considerably depending on how you use Todoist, how many projects you include, and how you sort.
 
-Option enabled: displayAvatar: true
-![My image](https://raw.githubusercontent.com/thyed/MMM-Todoist/master/todoist-avatars.png)
-
-Option enabled: displayLastUpdate: true, wrapEvents: true, maxTitleLenght: 25
-![My image](https://github.com/AgP42/MMM-Todoist/blob/master/todoist.png)
-
-Options enabled: orderBy:todoist, showProjects: true
-![My image](http://cbrooker.github.io/MMM-Todoist/Screenshots/1.png)
-
-Options enabled: orderBy:dueDateAsc, showProjects: true
-![My image](http://cbrooker.github.io/MMM-Todoist/Screenshots/2.png)
-
-Options enabled: orderBy:dueDateAsc, showProjects: false
-![My image](http://cbrooker.github.io/MMM-Todoist/Screenshots/3.png)
-
-Options enabled: orderBy:todoist, showProjects: false
-![My image](http://cbrooker.github.io/MMM-Todoist/Screenshots/4.png)
-
-Options enabled: orderBy:todoist, showProjects: true
-![My image](http://cbrooker.github.io/MMM-Todoist/Screenshots/5.png)
-
-Options enabled: orderBy:dueDateAsc, showProjects: true
-![My image](http://cbrooker.github.io/MMM-Todoist/Screenshots/6.png)
-
-Options enabled: orderBy:dueDateAsc, showProjects: false
-![My image](http://cbrooker.github.io/MMM-Todoist/Screenshots/7.png)
+| Options                                   | Screenshot                                                                                    |
+|-------------------------------------------|-----------------------------------------------------------------------------------------------|
+| `displayAvatar: true`                     | ![Screenshot](https://raw.githubusercontent.com/thyed/MMM-Todoist/master/todoist-avatars.png) |
+| `orderBy:todoist, showProjects: true`     | ![Screenshot](http://cbrooker.github.io/MMM-Todoist/Screenshots/1.png)                        |
+| `orderBy:dueDateAsc, showProjects: true`  | ![Screenshot](http://cbrooker.github.io/MMM-Todoist/Screenshots/2.png)                        |
+| `orderBy:dueDateAsc, showProjects: false` | ![Screenshot](http://cbrooker.github.io/MMM-Todoist/Screenshots/3.png)                        |
+| `orderBy:todoist, showProjects: false`    | ![Screenshot](http://cbrooker.github.io/MMM-Todoist/Screenshots/4.png)                        |
+| `orderBy:todoist, showProjects: true`     | ![Screenshot](http://cbrooker.github.io/MMM-Todoist/Screenshots/5.png)                        |
+| `orderBy:dueDateAsc, showProjects: true`  | ![Screenshot](http://cbrooker.github.io/MMM-Todoist/Screenshots/6.png)                        |
+| `orderBy:dueDateAsc, showProjects: false` | ![Screenshot](http://cbrooker.github.io/MMM-Todoist/Screenshots/7.png)                        |
