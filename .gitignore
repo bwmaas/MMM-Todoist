@@ -34,3 +34,6 @@ node_modules
 
 # Tarballs
 *.tgz
+
+# Access token file
+token.txt

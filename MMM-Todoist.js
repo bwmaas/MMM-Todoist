@@ -33,6 +33,7 @@ var UserPresence = true; //true by default, so no impact for user without a PIR 
 Module.register("MMM-Todoist", {
 
 	defaults: {
+		tokenFile: "token.txt",
 		maximumEntries: 10,
 		projects: [],
 		blacklistProjects: false,
@@ -108,7 +109,7 @@ Module.register("MMM-Todoist", {
 
 	start: function () {
 		var self = this;
-		Log.info("Starting module: " + this.name);
+		console.info("Starting module: " + this.name);
 
 		this.updateIntervalID = 0; // Definition of the IntervalID to be able to stop and start it again
 		this.ModuleToDoIstHidden = false; // by default it is considered displayed. Note : core function "this.hidden" has strange behaviour, so not used here
@@ -116,11 +117,6 @@ Module.register("MMM-Todoist", {
 		//to display "Loading..." at start-up
 		this.title = "Loading...";
 		this.loaded = false;
-
-		if (this.config.accessToken === "") {
-			Log.error("MMM-Todoist: AccessToken not set!");
-			return;
-		}
 
 		//Support legacy properties
 		if (this.config.lists !== undefined) {
@@ -133,12 +129,7 @@ Module.register("MMM-Todoist", {
 		this.userList = typeof this.config.projects !== "undefined" ?
 			JSON.parse(JSON.stringify(this.config.projects)) : [];
 
-		this.sendSocketNotification("FETCH_TODOIST", this.config);
-
-		//add ID to the setInterval function to be able to stop it later on
-		this.updateIntervalID = setInterval(function () {
-			self.sendSocketNotification("FETCH_TODOIST", self.config);
-		}, this.config.updateInterval);
+		this.sendSocketNotification("INIT", this.config);
 	},
 
 	suspend: function () { //called by core system when the module is not displayed anymore on the screen
@@ -230,7 +221,19 @@ Module.register("MMM-Todoist", {
 	// Override socket notification handler.
 	// ******** Data sent from the Backend helper. This is the data from the Todoist API ************
 	socketNotificationReceived: function (notification, payload) {
-		if (notification === "TASKS") {
+		if (notification === "POST_INIT") {
+			// Save the config in case any modifications were made
+			this.config = payload;
+
+			// Update
+			this.sendSocketNotification("FETCH_TODOIST", this.config);
+
+			// Add ID to the setInterval function to be able to stop it later on
+			var self = this;
+			this.updateIntervalID = setInterval(function () {
+				self.sendSocketNotification("FETCH_TODOIST", self.config);
+			}, this.config.updateInterval);
+		} else if (notification === "TASKS") {
 			this.filterTodoistData(payload);
 
 			if (this.config.displayLastUpdate) {

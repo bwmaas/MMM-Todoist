@@ -1,16 +1,15 @@
 {
   "name": "mmm-todoist",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Todoist module for MagicMirror².",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/bwmaas/MMM-Todoist"
   },
   "keywords": [
-    "magic mirror",
+    "magicmirror",
     "smart mirror",
-    "wunderlist",
-    "module"
+	"todoist"
   ],
   "author": "Ben Maas",
   "contributors": "https://github.com/bwmaas/MMM-Todoist/graphs/contributors",

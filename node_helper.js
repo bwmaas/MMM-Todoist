@@ -9,6 +9,8 @@
  */
 
 const NodeHelper = require("node_helper");
+const fs = require("node:fs");
+const path = require("node:path");
 const request = require("request");
 const showdown = require("showdown");
 
@@ -20,7 +22,19 @@ module.exports = NodeHelper.create({
 	},
 
 	socketNotificationReceived: function(notification, payload) {
-		if (notification === "FETCH_TODOIST") {
+		if (notification === "INIT") {
+			console.debug("Initializing node helper for: MMM-Todoist");
+			this.config = payload;
+
+			// If accessToken is not set, load it from tokenFile
+			if (this.config.accessToken === undefined) {
+				const tokenPath = path.resolve(__dirname, this.config.tokenFile);
+				this.config.accessToken = fs.readFileSync(tokenPath, { encoding: "utf8" }).trim();
+			}
+
+			// Send the config back to client process
+			this.sendSocketNotification("POST_INIT", this.config);
+		} else if (notification === "FETCH_TODOIST") {
 			this.config = payload;
 			this.fetchTodos();
 		}
@@ -28,15 +42,14 @@ module.exports = NodeHelper.create({
 
 	fetchTodos : function() {
 		var self = this;
-		//request.debug = true;
-		var acessCode = self.config.accessToken;
+
 		request({
 			url: self.config.apiBase + "/" + self.config.apiVersion + "/" + self.config.todoistEndpoint + "/",
 			method: "POST",
 			headers: {
 				"content-type": "application/x-www-form-urlencoded",
 				"cache-control": "no-cache",
-				"Authorization": "Bearer " + acessCode
+				"Authorization": "Bearer " + self.config.accessToken
 			},
 			form: {
 				sync_token: "*",
@@ -50,22 +63,18 @@ module.exports = NodeHelper.create({
 				});
 				return console.error(" ERROR - MMM-Todoist: " + error);
 			}
-			if(self.config.debug){
-				console.log(body);
-			}
 			if (response.statusCode === 200) {
 				var taskJson = JSON.parse(body);
 				taskJson.items.forEach((item)=>{
 					item.contentHtml = markdown.makeHtml(item.content);
 				});
 
-				taskJson.accessToken = acessCode;
+				taskJson.accessToken = self.config.accessToken;
 				self.sendSocketNotification("TASKS", taskJson);
 			}
 			else{
-				console.log("Todoist api request status="+response.statusCode);
+				console.warn("Todoist API request status=" + response.statusCode);
 			}
-
 		});
 	}
 });
