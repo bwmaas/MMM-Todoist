@@ -2,10 +2,10 @@
 # MMM-Todoist
 This is a fork of the original [MMM-Todoist](https://github.com/cbrooker/MMM-Todoist).
 
-This an extension for [MagicMirror²](https://magicmirror.builders). It can display your Todoist todos. You can add
+This an extension for [MagicMirror²](https://magicmirror.builders). It can display your Todoist tasks. You can add
 multiple instances with different lists. Only one account supported. The requests to the server will be paused if
 the module is not displayed (use of a carousel or hidden by Remote-Control for example) or by the use of a PIR sensor
-and the module MMM-PIR-Sensor. An immediate update will occurs at the return of the module display.
+and the module MMM-PIR-Sensor. An immediate update occurs at the return of the module display.
 
 ## Using the module
 See the [installation instructions](INSTALLATION.md) for more details. Add the module to the `modules` array in the `config/config.js` file:
