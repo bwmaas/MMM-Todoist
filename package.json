@@ -12,7 +12,12 @@
 	"todoist"
   ],
   "author": "Ben Maas",
-  "contributors": "https://github.com/bwmaas/MMM-Todoist/graphs/contributors",
+  "contributors": [
+	{
+	  "name": "Github Contributors",
+	  "url": "https://github.com/bwmaas/MMM-Todoist/graphs/contributors"
+	}
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/bwmaas/MMM-Todoist/issues"
