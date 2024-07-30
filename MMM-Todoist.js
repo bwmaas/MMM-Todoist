@@ -394,9 +394,9 @@ Module.register("MMM-Todoist", {
 		this.tasks = {
 			"items": items,
 			"projects": tasks.projects,
-			"collaborators": tasks.collaborators
+			"collaborators": tasks.collaborators,
+			"user": tasks.user
 		};
-
 	},
 	/*
 	 * The Todoist API returns task due dates as strings in these two formats: YYYY-MM-DD and YYYY-MM-DDThh:mm:ss
@@ -590,11 +590,18 @@ Module.register("MMM-Todoist", {
 	addAssigneeAvatorCell: function(item, collaboratorsMap) {
 		var avatarImg = document.createElement("img");
 		avatarImg.className = "todoAvatarImg";
+		avatarImg.src = "/modules/MMM-Todoist/1x1px.png";
 
-		var colIndex = collaboratorsMap.get(item.responsible_uid);
-		if (typeof colIndex !== "undefined" && this.tasks.collaborators[colIndex].image_id!=null) {
-			avatarImg.src = "https://dcff1xvirvpfp.cloudfront.net/" + this.tasks.collaborators[colIndex].image_id + "_big.jpg";
-		} else { avatarImg.src = "/modules/MMM-Todoist/1x1px.png"; }
+		if (item.responsible_uid !== null) {
+			if (item.responsible_uid === this.tasks.user.id) {
+				avatarImg.src = this.tasks.user.avatar_big;
+			} else  {
+				var colIndex = collaboratorsMap.get(item.responsible_uid);
+				if (typeof colIndex !== undefined && this.tasks.collaborators[colIndex].image_id !== null) {
+					avatarImg.src = this.tasks.collaborators[colIndex].avatar_big;
+				}
+			}
+		}
 
 		var cell = this.createCell("", "");
 		cell.appendChild(avatarImg);
