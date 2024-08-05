@@ -1,6 +1,6 @@
 {
   "name": "mmm-todoist",
-  "version": "1.1.0",
+  "version": "2.0.0-beta-1",
   "description": "Todoist module for MagicMirror².",
   "repository": {
     "type": "git",
@@ -9,23 +9,49 @@
   "keywords": [
     "magicmirror",
     "smart mirror",
-	"todoist"
+    "todoist"
   ],
   "author": "Ben Maas",
   "contributors": [
-	{
-	  "name": "Github Contributors",
-	  "url": "https://github.com/bwmaas/MMM-Todoist/graphs/contributors"
-	}
+    {
+      "name": "Github Contributors",
+      "url": "https://github.com/bwmaas/MMM-Todoist/graphs/contributors"
+    }
   ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/bwmaas/MMM-Todoist/issues"
   },
   "homepage": "https://github.com/bwmaas/MMM-Todoist",
+  "scripts": {
+    "build": "npx babel src --out-dir . --extensions '.ts,.tsx'",
+    "listProjects": "node -e 'require(\"./util.js\").listProjects()'"
+  },
   "dependencies": {
+    "@doist/todoist-api-typescript": "^3.0.3",
     "audit": "^0.0.6",
+    "core-js": "^3.38.0",
     "request": "^2.88.2",
     "showdown": "^2.1.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.24.8",
+    "@babel/core": "^7.25.2",
+    "@babel/preset-env": "^7.25.3",
+    "@babel/preset-react": "^7.24.7",
+    "@babel/preset-typescript": "^7.24.7",
+    "@types/core-js": "^2.5.8",
+    "@types/magicmirror-module": "^2.16.5",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@typescript-eslint/eslint-plugin": "^7.16.1",
+    "@typescript-eslint/parser": "^7.16.1",
+    "browserslist": "^4.23.3",
+    "eslint": "^8.57.0",
+    "eslint-plugin-jsdoc": "^48.8.3",
+    "typescript": "^5.5.4"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }
