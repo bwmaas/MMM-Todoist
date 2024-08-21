@@ -60,6 +60,33 @@ function filterTasks(config: Config,
   return Array.from(filteredTasks)
 }
 
+function handleCollaborators(config: Config, users: User[]) {
+  cachedCollaborators = users
+}
+
+function handleLabels(config: Config, labels: string[]) {
+  cachedLabels = labels
+  filteredLabels = filterLabels(config, labels)
+}
+
+function handleProjects(config: Config, projects: Project[]) {
+  cachedProjects = projects
+  filteredProjects = filterProjectIds(config, projects)
+}
+
+function handleTasks(config: Config, tasks: Task[]) {
+  cachedTasks = tasks
+  filteredTasks = filterTasks(config, tasks, filteredProjects, filteredLabels)
+}
+
+let cachedCollaborators: User[]
+let cachedLabels: string[]
+let cachedProjects: Project[]
+let cachedTasks: Task[]
+let filteredLabels: string[]
+let filteredProjects: string[]
+let filteredTasks: Task[]
+
 Module.register<Config>('MMM-Todoist', {
   defaults: {
     tokenFile: 'token.txt',
@@ -92,8 +119,6 @@ Module.register<Config>('MMM-Todoist', {
     this.updateIntervalId = 0
     this.isHidden = false
     this.isLoaded = false
-
-    this.
 
     this.sendNotification(SocketNotification.INIT, this.config)
   },
@@ -147,4 +172,8 @@ Module.register<Config>('MMM-Todoist', {
   resume(): void {
     this.isHidden = false
   },
+
+  getDom(): HTMLElement {
+
+  }
 })

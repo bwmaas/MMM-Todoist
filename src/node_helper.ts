@@ -45,7 +45,7 @@ module.exports = NodeHelper.create({
     console.log(`Starting node helper for: ${this.name}`)
   },
 
-  socketNotificationReceived(notification: SocketNotification, payload: unknown): void {
+  socketNotificationReceived(notification: string, payload: unknown): void {
     switch (notification) {
       case SocketNotification.INIT:
         console.debug(`Initializing node helper for: ${this.name}`)

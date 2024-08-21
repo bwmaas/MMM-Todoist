@@ -29,10 +29,7 @@
   },
   "dependencies": {
     "@doist/todoist-api-typescript": "^3.0.3",
-    "audit": "^0.0.6",
-    "core-js": "^3.38.0",
-    "request": "^2.88.2",
-    "showdown": "^2.1.0"
+    "core-js": "^3.38.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.24.8",
