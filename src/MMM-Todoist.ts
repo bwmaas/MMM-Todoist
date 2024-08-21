@@ -136,7 +136,7 @@ Module.register<Config>('MMM-Todoist', {
     }
   },
 
-  socketNotificationReceived(notification: SocketNotification, payload: unknown) {
+  socketNotificationReceived(notification: string, payload: unknown) {
     Log.debug(`${this.name} received socket notification: ${notification} with payload: ${payload}`)
     switch (notification) {
       case SocketNotification.POST_INIT:

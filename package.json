@@ -24,7 +24,9 @@
   },
   "homepage": "https://github.com/bwmaas/MMM-Todoist",
   "scripts": {
-    "build": "npx babel src --out-dir . --extensions '.ts,.tsx'",
+    "build": "npm run build-js && npm run build-css",
+    "build-js": "npx babel src --out-dir . --extensions '.ts,.tsx'",
+    "build-css": "npx sass src/css:css",
     "listProjects": "node -e 'require(\"./util.js\").listProjects()'"
   },
   "dependencies": {
@@ -46,6 +48,7 @@
     "browserslist": "^4.23.3",
     "eslint": "^8.57.0",
     "eslint-plugin-jsdoc": "^48.8.3",
+    "sass": "^1.77.8",
     "typescript": "^5.5.4"
   },
   "engines": {
