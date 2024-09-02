@@ -20,6 +20,6 @@ export type Config = {
   displayTasksWithinDays: number,
   displaySubtasks: boolean,
   displayAvatar: boolean,
-  showProject: boolean,
+  displayProject: boolean,
   debug: boolean
 }

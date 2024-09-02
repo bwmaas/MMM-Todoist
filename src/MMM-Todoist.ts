@@ -3,9 +3,21 @@ import { Config } from "./types/Config";
 import { SocketNotification } from "./constants/SocketNotification";
 import { SortType } from "./constants/SortType";
 import { Project, Task, User } from "@doist/todoist-api-typescript";
+import TaskList, { TaskListProps } from "./components/TaskList";
+import { renderToStaticMarkup } from 'react-dom/server';
+
+
+const moduleName: string = 'MMM-Todoist'
+let cachedCollaborators: User[]
+let cachedLabels: string[]
+let cachedProjects: Project[]
+let cachedTasks: Task[]
+let filteredLabels: string[]
+let filteredProjects: string[]
+let filteredTasks: Task[]
 
 function filterLabels(config: Config, labels: string[]): string[] {
-  Log.debug(`${this.name}: filtering labels`)
+  Log.debug(`${moduleName}: filtering labels`)
   let filteredLabels: string[] = []
 
   if (config.excludeLabels) {
@@ -22,7 +34,7 @@ function filterLabels(config: Config, labels: string[]): string[] {
 }
 
 function filterProjectIds(config: Config, projects: Project[]): string[] {
-  Log.debug(`${this.name}: filtering projectIds`)
+  Log.debug(`${moduleName}: filtering projectIds`)
   let filteredProjectIds: string[] = []
 
   if (config.excludeProjects) {
@@ -42,7 +54,7 @@ function filterTasks(config: Config,
                      tasks: Task[],
                      projects: string[],
                      labels: string[]): Task[] {
-  Log.debug(`${this.name}: filtering tasks`)
+  Log.debug(`${moduleName}: filtering tasks`)
   let filteredTasks: Set<Task> = new Set<Task>()
 
   tasks.forEach((task) => {
@@ -79,15 +91,7 @@ function handleTasks(config: Config, tasks: Task[]) {
   filteredTasks = filterTasks(config, tasks, filteredProjects, filteredLabels)
 }
 
-let cachedCollaborators: User[]
-let cachedLabels: string[]
-let cachedProjects: Project[]
-let cachedTasks: Task[]
-let filteredLabels: string[]
-let filteredProjects: string[]
-let filteredTasks: Task[]
-
-Module.register<Config>('MMM-Todoist', {
+Module.register<Config>(moduleName, {
   defaults: {
     tokenFile: 'token.txt',
     maximumEntries: 10,
@@ -108,7 +112,7 @@ Module.register<Config>('MMM-Todoist', {
     displayTasksWithinDays: -1,
     displaySubtasks: true,
     displayAvatar: false,
-    showProject: true,
+    displayProject: true,
     debug: false
   },
 
@@ -174,6 +178,17 @@ Module.register<Config>('MMM-Todoist', {
   },
 
   getDom(): HTMLElement {
+    const props: TaskListProps = {
+      config: this.config,
+      tasks: filteredTasks,
+      collaborators: cachedCollaborators,
+      labels: cachedLabels,
+      projects: cachedProjects
+    }
 
+    const wrapper = document.createElement('div')
+    wrapper.innerHTML = renderToStaticMarkup(TaskList(props))
+
+    return wrapper
   }
 })
