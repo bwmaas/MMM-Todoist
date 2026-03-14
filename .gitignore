@@ -35,5 +35,9 @@ node_modules
 # Tarballs
 *.tgz
 
+
+# JetBrains IDEs
+.idea/
+
 # Access token file
 token.txt

@@ -37,7 +37,7 @@ Module.register("MMM-Todoist", {
 		maximumEntries: 10,
 		projects: [],
 		blacklistProjects: false,
-	    	labels: [""],
+	    	labels: [],
 		updateInterval: 10 * 60 * 1000, // every 10 minutes,
 		fade: true,
 		fadePoint: 0.25,
@@ -84,9 +84,9 @@ Module.register("MMM-Todoist", {
 			49:'#ccac93'
 		},
 
-		//This has been designed to use the Todoist Sync API.
-		apiVersion: "v9",
-		apiBase: "https://todoist.com/API",
+		//This has been designed to use the Todoist Sync API v1.
+		apiVersion: "v1",
+		apiBase: "https://api.todoist.com/api",
 		todoistEndpoint: "sync",
 
 		todoistResourceType: "[\"items\", \"projects\", \"collaborators\", \"user\", \"labels\"]",
@@ -168,7 +168,7 @@ Module.register("MMM-Todoist", {
 			}
 
 		} else { //if (UserPresence = false OR ModuleHidden = true)
-			Log.log("Personne regarde : on stop l'update " + this.name + " projet : " + this.config.projects);
+			Log.log("User not present or module hidden: stopping update for " + this.name + " project: " + this.config.projects);
 			clearInterval(this.updateIntervalID); // stop the update interval of this module
 			this.updateIntervalID = 0; //reset the flag to be able to start another one at resume
 		}
@@ -279,20 +279,17 @@ Module.register("MMM-Todoist", {
 				console.log(this.config.projects);
 			}
 		}
-		/* Not needed for labels, but kept for reuse elsewhere
-		// Loop through labels fetched from API and find corresponding label IDs for task filtering
-		// Could be re-used for project names -> project IDs.
-		if (self.config.labels.length>0 && tasks.labels != undefined) {
+		// Map configured label names (or IDs) to label IDs returned by the API so filtering works
+		if (self.config.labels.length > 0 && tasks.labels != undefined) {
 			for (let apiLabel of tasks.labels) {
 				for (let configLabelName of self.config.labels) {
-					if (apiLabel.name == configLabelName) {
+					if ((apiLabel.name && configLabelName && apiLabel.name.toLowerCase() === String(configLabelName).toLowerCase()) || String(apiLabel.id) === String(configLabelName)) {
 						labelIds.push(apiLabel.id);
 						break;
 					}
 				}
 			}
 		}
-		*/
 		if (self.config.displayTasksWithinDays > -1 || !self.config.displayTasksWithoutDue) {
 			tasks.items = tasks.items.filter(function (item) {
 				if (item.due === null) {
@@ -310,22 +307,26 @@ Module.register("MMM-Todoist", {
 		}
 
 		//Filter the Todos by the criteria specified in the Config
-		tasks.items.forEach(function (item) {
+	tasks.items.forEach(function (item) {
 			// Ignore sub-tasks
 			if (item.parent_id!=null && !self.config.displaySubtasks) { return; }
 
+			// If no projects or labels are configured, include all tasks
+			if (self.config.labels.length === 0 && self.config.projects.length === 0) {
+				items.push(item);
+				return;
+			}
+
 			// Filter using label if a label is configured
 			if (self.config.labels.length > 0 && item.labels.length > 0) {
-        			// Check all the labels assigned to the task. Add to items if match with configured label
-        			for (let label of item.labels) {
-          				for (let labelName of self.config.labels) {
-            					if (label == labelName) { //the string returned from SyncAPI matches the strong in config
-              						items.push(item);
-              						return;
-            					}
-          				}
-        			}
-      			}
+					// item.labels contains label IDs. Use mapped labelIds (from tasks.labels) or allow numeric IDs in config.
+					for (let itemLabelId of item.labels) {
+						if (labelIds.includes(itemLabelId) || self.config.labels.includes(itemLabelId) || self.config.labels.includes(String(itemLabelId))) {
+							items.push(item);
+							return;
+						}
+					}
+			}
 
 			// Filter using projets if projects are configured
 			if (self.config.projects.length>0){
@@ -357,7 +358,7 @@ Module.register("MMM-Todoist", {
 			// Used to sort by date.
 			item.date = self.parseDueDate(item.due.date);
 
-			// as v8 API does not have 'all_day' field anymore then check due.date for presence of time
+			// The Sync API does not include an 'all_day' field, so we check due.date for presence of time
 			// if due.date has a time then set item.all_day to false else all_day is true
 			if (item.due.date.length > 10) {
 				item.all_day = false;
@@ -367,6 +368,7 @@ Module.register("MMM-Todoist", {
 		});
 
 		//***** Sorting code if you want to add new methods. */
+		var sorteditems;
 		switch (self.config.sortType) {
 		case "todoist":
 			sorteditems = self.sortByTodoist(items);
@@ -389,12 +391,12 @@ Module.register("MMM-Todoist", {
 		}
 
 		//Slice by max Entries
-		items = items.slice(0, this.config.maximumEntries);
+		items = sorteditems.slice(0, this.config.maximumEntries);
 
 		this.tasks = {
 			"items": items,
-			"projects": tasks.projects,
-			"collaborators": tasks.collaborators,
+			"projects": tasks.projects || [],
+			"collaborators": tasks.collaborators || []
 			"user": tasks.user
 		};
 	},
@@ -499,11 +501,20 @@ Module.register("MMM-Todoist", {
 		return this.createCell("spacerCell", "&nbsp;");
 	},
 	addTodoTextCell: function(item) {
-		var temp = document.createElement('div');
-		temp.innerHTML = item.contentHtml;
+		var taskText = "";
+		if (item.contentHtml) {
+			var temp = document.createElement('div');
+			temp.innerHTML = item.contentHtml;
+			var para = temp.getElementsByTagName('p');
+			if (para && para.length > 0) {
+				taskText = para[0].innerHTML;
+			} else {
+				taskText = temp.textContent || temp.innerText || item.content || "";
+			}
+		} else {
+			taskText = item.content || "";
+		}
 
-		var para = temp.getElementsByTagName('p');
-		var taskText = para[0].innerHTML;
 		// if sorting by todoist, indent subtasks under their parents
 		if (this.config.sortType === "todoist" && item.parent_id) {
 			// this item is a subtask so indent it
@@ -511,8 +522,6 @@ Module.register("MMM-Todoist", {
 		}
 		return this.createCell("title bright alignLeft",
 			this.shorten(taskText, this.config.maxTitleLength, this.config.wrapEvents));
-
-		// return this.createCell("title bright alignLeft", item.content);
 	},
 	addDueDateCell: function(item) {
 		var className = "bright align-right dueDate ";
@@ -530,20 +539,20 @@ Module.register("MMM-Todoist", {
 			innerHTML = dueDate.toLocaleDateString(config.language, {
 												"month": "short"
 											}) + " " + dueDate.getDate();
-			className += "xsmall overdue";
+			className += "xsmall todoDueOverdue";
 		} else if (diffDays === -1) {
 			innerHTML = this.translate("YESTERDAY");
-			className += "xsmall overdue";
+			className += "xsmall todoDueOverdue";
 		} else if (diffDays === 0) {
 			innerHTML = this.translate("TODAY");
 			if (item.all_day || dueDateTime >= now) {
-				className += "today";
+				className += "todoDueToday";
 			} else {
-				className += "overdue";
+				className += "todoDueOverdue";
 			}
 		} else if (diffDays === 1) {
 			innerHTML = this.translate("TOMORROW");
-			className += "xsmall tomorrow";
+			className += "xsmall todoDueTomorrow";
 		} else if (diffDays < 7) {
 			innerHTML = dueDate.toLocaleDateString(config.language, {
 				"weekday": "short"
@@ -583,8 +592,11 @@ Module.register("MMM-Todoist", {
 	},
 	addProjectCell: function(item) {
 		var project = this.tasks.projects.find(p => p.id === item.project_id);
-		var projectcolor = this.config.projectColors[project.color];
-		var innerHTML = "<span class='projectcolor' style='color: " + projectcolor + "; background-color: " + projectcolor + "'></span>" + project.name;
+		if (!project) {
+			return this.createCell("xsmall", "");
+		}
+		var projectcolor = this.config.projectColors[project.color] || "#cccccc";
+		var innerHTML = "<span class='projectcolor' style='color: " + projectcolor + "; background-color: " + projectcolor + "'></span>" + (project.name || "");
 		return this.createCell("xsmall", innerHTML);
 	},
 	addAssigneeAvatorCell: function(item, collaboratorsMap) {
@@ -592,15 +604,14 @@ Module.register("MMM-Todoist", {
 		avatarImg.className = "todoAvatarImg";
 		avatarImg.src = "/modules/MMM-Todoist/1x1px.png";
 
-		if (item.responsible_uid !== null) {
-			if (item.responsible_uid === this.tasks.user.id) {
-				avatarImg.src = this.tasks.user.avatar_big;
-			} else  {
-				var colIndex = collaboratorsMap.get(item.responsible_uid);
-				if (typeof colIndex !== undefined && this.tasks.collaborators[colIndex].image_id !== null) {
-					avatarImg.src = this.tasks.collaborators[colIndex].avatar_big;
-				}
-			}
+		var colIndex = collaboratorsMap.get(item.responsible_uid);
+		if (typeof colIndex !== "undefined" &&
+		    this.tasks.collaborators &&
+		    this.tasks.collaborators[colIndex] &&
+		    this.tasks.collaborators[colIndex].image_id != null) {
+			avatarImg.src = "https://dcff1xvirvpfp.cloudfront.net/" + this.tasks.collaborators[colIndex].image_id + "_big.jpg";
+		} else {
+			avatarImg.src = "/modules/MMM-Todoist/1x1px.png";
 		}
 
 		var cell = this.createCell("", "");
@@ -610,7 +621,7 @@ Module.register("MMM-Todoist", {
 	},
 	getDom: function () {
 
-		if (this.config.hideWhenEmpty && this.tasks.items.length===0) {
+		if (this.config.hideWhenEmpty && (!this.tasks || !this.tasks.items || this.tasks.items.length === 0)) {
 			return null;
 		}
 
@@ -632,15 +643,19 @@ Module.register("MMM-Todoist", {
 		var divBody = document.createElement("div");
 		divBody.className = "divTableBody";
 
-		if (this.tasks === undefined) {
+		if (this.tasks === undefined || !this.tasks.items) {
 			return wrapper;
 		}
 
 		// create mapping from user id to collaborator index
 		var collaboratorsMap = new Map();
 
-		for (var value=0; value < this.tasks.collaborators.length; value++) {
-			collaboratorsMap.set(this.tasks.collaborators[value].id, value);
+		if (this.tasks.collaborators && Array.isArray(this.tasks.collaborators)) {
+			for (var value=0; value < this.tasks.collaborators.length; value++) {
+				if (this.tasks.collaborators[value] && this.tasks.collaborators[value].id) {
+					collaboratorsMap.set(this.tasks.collaborators[value].id, value);
+				}
+			}
 		}
 
 		//Iterate through Todos

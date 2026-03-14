@@ -11,10 +11,23 @@
 const NodeHelper = require("node_helper");
 const fs = require("node:fs");
 const path = require("node:path");
-const request = require("request");
-const showdown = require("showdown");
 
-const markdown = new showdown.Converter();
+let axios;
+let showdown;
+
+try {
+	axios = require("axios");
+} catch (e) {
+	axios = null;
+	console.error("MMM-Todoist: missing dependency 'axios'. Run 'npm install' in the module folder.", e && e.message);
+}
+
+try {
+	showdown = require("showdown");
+} catch (e) {
+	showdown = null;
+	console.error("MMM-Todoist: missing dependency 'showdown'. Run 'npm install' in the module folder.", e && e.message);
+}
 
 module.exports = NodeHelper.create({
 	start: function() {
@@ -42,39 +55,94 @@ module.exports = NodeHelper.create({
 
 	fetchTodos : function() {
 		var self = this;
+		var accessCode = self.config.accessToken;
 
-		request({
-			url: self.config.apiBase + "/" + self.config.apiVersion + "/" + self.config.todoistEndpoint + "/",
-			method: "POST",
+		if (!axios) {
+			console.error("MMM-Todoist: axios is not available. Please run 'npm install' in modules/MMM-Todoist");
+			self.sendSocketNotification("FETCH_ERROR", { error: "Missing dependency: axios" });
+			return;
+		}
+
+		if (!accessCode || accessCode === "") {
+			console.error("MMM-Todoist: AccessToken not set!");
+			self.sendSocketNotification("FETCH_ERROR", {
+				error: "AccessToken not configured"
+			});
+			return;
+		}
+
+		var url = self.config.apiBase + "/" + self.config.apiVersion + "/" + self.config.todoistEndpoint;
+		var params = new URLSearchParams();
+		params.append("sync_token", "*");
+		params.append("resource_types", self.config.todoistResourceType);
+
+		axios.post(url, params.toString(), {
 			headers: {
 				"content-type": "application/x-www-form-urlencoded",
 				"cache-control": "no-cache",
-				"Authorization": "Bearer " + self.config.accessToken
-			},
-			form: {
-				sync_token: "*",
-				resource_types: self.config.todoistResourceType
+				"Authorization": "Bearer " + accessCode
 			}
-		},
-		function(error, response, body) {
-			if (error) {
-				self.sendSocketNotification("FETCH_ERROR", {
-					error: error
-				});
-				return console.error(" ERROR - MMM-Todoist: " + error);
+		})
+		.then(function(response) {
+			if (self.config.debug) {
+				console.log("MMM-Todoist API Response:", JSON.stringify(response.data, null, 2));
 			}
-			if (response.statusCode === 200) {
-				var taskJson = JSON.parse(body);
-				taskJson.items.forEach((item)=>{
-					item.contentHtml = markdown.makeHtml(item.content);
+
+			if (response.status === 200 && response.data) {
+				var taskJson = response.data;
+
+				if (!taskJson.items || !Array.isArray(taskJson.items)) {
+					console.error("MMM-Todoist: Invalid response format - items array missing");
+					self.sendSocketNotification("FETCH_ERROR", {
+						error: "Invalid response format"
+					});
+					return;
+				}
+
+				let markdownConverter = null;
+				if (showdown) {
+					markdownConverter = new showdown.Converter();
+				}
+
+				taskJson.items.forEach((item) => {
+					if (item.content) {
+						if (markdownConverter) {
+							item.contentHtml = markdownConverter.makeHtml(item.content);
+						} else {
+							item.contentHtml = item.content;
+						}
+					}
 				});
 
-				taskJson.accessToken = self.config.accessToken;
+				taskJson.accessToken = accessCode;
 				self.sendSocketNotification("TASKS", taskJson);
+			} else {
+				console.error("MMM-Todoist: Unexpected response status: " + response.status);
+				self.sendSocketNotification("FETCH_ERROR", {
+					error: "Unexpected response status: " + response.status
+				});
 			}
-			else{
-				console.warn("Todoist API request status=" + response.statusCode);
+		})
+		.catch(function(error) {
+			var errorMessage = "Unknown error";
+			if (error.response) {
+				// The request was made and the server responded with a status code
+				// that falls out of the range of 2xx
+				errorMessage = "API Error: " + error.response.status + " - " + (error.response.data ? JSON.stringify(error.response.data) : error.message);
+				console.error("MMM-Todoist API Error:", error.response.status, error.response.data);
+			} else if (error.request) {
+				// The request was made but no response was received
+				errorMessage = "No response from Todoist API: " + error.message;
+				console.error("MMM-Todoist: No response received:", error.message);
+			} else {
+				// Something happened in setting up the request that triggered an Error
+				errorMessage = "Request setup error: " + error.message;
+				console.error("MMM-Todoist Request Error:", error.message);
 			}
+
+			self.sendSocketNotification("FETCH_ERROR", {
+				error: errorMessage
+			});
 		});
 	}
 });
