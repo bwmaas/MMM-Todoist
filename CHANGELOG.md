@@ -4,7 +4,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [1.2.0] - 2026-03-14
 ### Pull From Upstream
-- Merged commit f35c66f from cbrooker/MMM-Todoist
+- Merged commit [f35c66f from cbrooker/MMM-Todoist](https://github.com/cbrooker/MMM-Todoist/tree/f35c66f0bca032cdfecb4334829347f58de29293)
 
 ## [1.1.0] - 2024-07-30
 ### Added
