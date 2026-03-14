@@ -34,3 +34,7 @@ node_modules
 
 # Tarballs
 *.tgz
+
+
+# JetBrains IDEs
+.idea/
