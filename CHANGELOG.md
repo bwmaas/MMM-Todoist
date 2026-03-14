@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.2.0] - 2026-03-14
+### Pull From Upstream
+- Merged commit f35c66f from cbrooker/MMM-Todoist
+
 ## [1.1.0] - 2024-07-30
 ### Added
 - Support for loading token via file rather than config. See the `tokenFile` config option.
